@@ -39,11 +39,12 @@ gradle-app.setting
 ## IntelliJ
 ##############################
 out
-.idea
-.idea_modules
-.iml
-.ipr
-.iws
+*.idea
+*.idea_modules
+*.iml
+*.ipr
+*.iws
+*.txt
 
 ##############################
 ## Eclipse
