@@ -18,17 +18,17 @@ public class Graph6Converter {
 			}
 		}
 		return graph;
- 	}
+	}
 	public static boolean validate(String g) {
 		return g.length() != 0 && Character.isLetter(g.charAt(0));
 	}
 
-	 public static String bringToTheFrom(String what) {
+	public static String bringToTheFrom(String what) {
 		int length = what.length();
 		if (length == 6) return what;
 		if (length > 6) return what.substring(length - 6);
 		StringBuilder helper = new StringBuilder(what);
 		while (length++ < 6) helper.insert(0, '0');
 		return helper.toString();
-	 }
+	}
 }

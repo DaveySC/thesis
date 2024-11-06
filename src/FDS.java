@@ -17,7 +17,7 @@ public class FDS {
 			independentGeoDominantNumber = Integer.MAX_VALUE,
 			dependentGeoDominantNumber = Integer.MAX_VALUE;
 
-	private Map<String, List<Set<Integer>>> shortestPaths = new HashMap<>();
+	private Map<String, Set<Integer>> shortestPaths = new HashMap<>();
 
 	public FDS(boolean[][] graph) {
 		this.graph = graph;
@@ -31,18 +31,24 @@ public class FDS {
 	private void findShortestPaths(){
 		for (int i = 0; i < vertex; i++) findShortestPath(i, i, new HashSet<>(), new boolean[vertex], 0);
 	}
-
-	private void findShortestPath(int s, int e,  Set<Integer> q, boolean[] visited, int length) {
+	//сравнить результат обеих программ и понять почему они разные
+	//вот эта функция странно работает
+	//if shortestPathsSizes[s][e] == 1 => то существует только один путь между ними, {s,e}
+	//очень много холостых проходов, зачем искать путь длиной > максимального пути в строке
+	//можно ограничить эту функцию на длину рекурсии
+	private void findShortestPath(int s, int e, Set<Integer> q, boolean[] visited, int length) {
 		visited[e] = true;
 		q.add(e);
-		String key = Integer.toString(s) + Integer.toString(e);
-		String reversedKey = Integer.toString(e) + Integer.toString(s);
-		if (!shortestPaths.containsKey(reversedKey)) {
-			if (length == shortestPathsSizes[s][e])
-				shortestPaths.put(key, shortestPaths.computeIfAbsent(key, k -> new ArrayList<>())).add((new HashSet<>(q)));
+		String key = s + Integer.toString(e);
+		String reversedKey = e + Integer.toString(s);
+		if (!shortestPaths.containsKey(key)) {
+			if (length == shortestPathsSizes[s][e]) {
+				shortestPaths.computeIfAbsent(key, k -> new HashSet<>()).addAll(q);
+				shortestPaths.computeIfAbsent(reversedKey, k -> new HashSet<>()).addAll(q);
+			}
 		}
 		for (int i = 0; i < vertex; i++) {
-			if (graph[e][i] && !visited[i]) {
+			if (!visited[i] && graph[e][i]) {
 				findShortestPath(s, i, q, visited, length + 1);
 			}
 		}
@@ -51,10 +57,12 @@ public class FDS {
 	}
 
 	private void findShortestPathsSizes() {
-		for (int i = 0; i < vertex; i++) bfs(i);
+		int totalFind = 0;
+		int totalToFind = vertex * vertex;
+		for (int i = 0; i < vertex; i++) totalFind = bfs(i, totalFind);
 	}
-
-	private void bfs(int s) {
+	//вот тут понять почему total find не помог
+	private int bfs(int s, int totalFind) {
 		Queue<Integer> q = new LinkedList<>();
 		boolean[] visited = new boolean[vertex];
 		visited[s] = true;
@@ -66,15 +74,19 @@ public class FDS {
 			for (int counter = 0; counter < currentQSize; counter++) {
 				int curr = q.poll();
 				for (int i = 0; i < vertex; i++) {
-					if (graph[curr][i] && !visited[i]) {
+					if (!visited[i] && graph[curr][i]) {
 						visited[i] = true;
 						q.add(i);
+						if (shortestPathsSizes[s][i] != length) totalFind++;
+						if (shortestPathsSizes[i][s] != length) totalFind++;
 						shortestPathsSizes[s][i] = length;
+						shortestPathsSizes[i][s] = length;
 					}
 				}
 			}
 			length++;
 		}
+		return totalFind;
 	}
 
 	private void findDominantSets() {
@@ -99,10 +111,8 @@ public class FDS {
 			if (getBitFromInt(n, i)) {
 				for (int j = i; j < vertex; j++) {
 					if (getBitFromInt(n, j)) {
-						String key = Integer.toString(i) + Integer.toString(j);
-						for (Set<Integer> subset : shortestPaths.get(key)) {
-							I.addAll(subset);
-						}
+						I.addAll(shortestPaths.get(i + Integer.toString(j)));
+						if (I.size() == vertex) return true;
 					}
 				}
 			}
