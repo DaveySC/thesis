@@ -37,7 +37,6 @@ public class Application {
 		//600000
 		String line = "";
 		try(BufferedReader bi = new BufferedReader(new InputStreamReader(System.in))) {
-			int dominant = 0, independent = 0, dependent = 0;
 			int geoDominant = 0, independentGeoDominant = 0, dependentGeoDominant = 0;
 			while ((line = bi.readLine()) != null) {
 				if (!Graph6Converter.validate(line)) continue;

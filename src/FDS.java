@@ -7,6 +7,8 @@ public class FDS {
 
 	private int[][] shortestPathsSizes;
 
+	private int[] maxShortestPathSize;
+
 	private final int vertex;
 
 	private int dominantNumber = Integer.MAX_VALUE,
@@ -23,6 +25,7 @@ public class FDS {
 		this.graph = graph;
 		this.vertex = graph.length;
 		this.shortestPathsSizes = new int[vertex][vertex];
+		this.maxShortestPathSize = new int[vertex];
 		findShortestPathsSizes();
 		findShortestPaths();
 		findDominantSets();
@@ -33,20 +36,21 @@ public class FDS {
 	}
 	//сравнить результат обеих программ и понять почему они разные
 	//вот эта функция странно работает
-	//if shortestPathsSizes[s][e] == 1 => то существует только один путь между ними, {s,e}
+	//if shortestPathsSizes[s][e] == 1 => то существует только один путь между ними, {s, e}
 	//очень много холостых проходов, зачем искать путь длиной > максимального пути в строке
 	//можно ограничить эту функцию на длину рекурсии
 	private void findShortestPath(int s, int e, Set<Integer> q, boolean[] visited, int length) {
+		if (length > maxShortestPathSize[s]) return;
 		visited[e] = true;
 		q.add(e);
 		String key = s + Integer.toString(e);
 		String reversedKey = e + Integer.toString(s);
-		if (!shortestPaths.containsKey(key)) {
-			if (length == shortestPathsSizes[s][e]) {
-				shortestPaths.computeIfAbsent(key, k -> new HashSet<>()).addAll(q);
-				shortestPaths.computeIfAbsent(reversedKey, k -> new HashSet<>()).addAll(q);
-			}
+
+		if (length == shortestPathsSizes[s][e]) {
+			shortestPaths.computeIfAbsent(key, k -> new HashSet<>()).addAll(q);
+			shortestPaths.computeIfAbsent(reversedKey, k -> new HashSet<>()).addAll(q);
 		}
+
 		for (int i = 0; i < vertex; i++) {
 			if (!visited[i] && graph[e][i]) {
 				findShortestPath(s, i, q, visited, length + 1);
@@ -58,9 +62,10 @@ public class FDS {
 
 	private void findShortestPathsSizes() {
 		int totalFind = 0;
-		int totalToFind = vertex * vertex;
-		for (int i = 0; i < vertex; i++) totalFind = bfs(i, totalFind);
+		int totalToFind = vertex * (vertex - 1);
+		for (int i = 0; i < vertex && totalFind < totalToFind; i++) totalFind = bfs(i, totalFind);
 	}
+
 	//вот тут понять почему total find не помог
 	private int bfs(int s, int totalFind) {
 		Queue<Integer> q = new LinkedList<>();
@@ -81,6 +86,7 @@ public class FDS {
 						if (shortestPathsSizes[i][s] != length) totalFind++;
 						shortestPathsSizes[s][i] = length;
 						shortestPathsSizes[i][s] = length;
+						maxShortestPathSize[s] = Math.max(maxShortestPathSize[s], length);
 					}
 				}
 			}
