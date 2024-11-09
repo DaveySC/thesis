@@ -3,6 +3,7 @@ import java.nio.file.Files;
 import java.sql.SQLOutput;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Application {
 
@@ -10,7 +11,10 @@ public class Application {
 
 	private final File ErrorFile;
 	private final File outputFile;
-	private final Console console;
+
+	private Queue<Container> threadSafeQueue;
+
+	private SqlClerk sqlClerk;
 
 	//Vertex Count + 1
 	private final int ARRAY_SIZE = 11 + 1;
@@ -26,17 +30,20 @@ public class Application {
 
 	public Application(String outputFileName) {
 		this.outputFile = new File(outputFileName);
-		this.console = System.console();
 		this.ErrorFile = new File("error_file.txt");
 		this.clerk = new Clerk();
+		this.threadSafeQueue = new ArrayDeque<>();
+		this.sqlClerk = new SqlClerk(threadSafeQueue);
 	}
 
-	public int start() throws IOException {
+	public int start() throws Exception {
+		System.out.println("START - " + new Date());
 		MyTimerTask timerTask = new MyTimerTask();
 		new Timer().scheduleAtFixedRate(timerTask, 0, 600000);
 		//600000
 		String line = "";
 		try(BufferedReader bi = new BufferedReader(new InputStreamReader(System.in))) {
+			sqlClerk.start();
 			int geoDominant = 0, independentGeoDominant = 0, dependentGeoDominant = 0;
 			while ((line = bi.readLine()) != null) {
 				if (!Graph6Converter.validate(line)) continue;
@@ -50,6 +57,8 @@ public class Application {
 				geoDominant_dependentGeoDominant[geoDominant][dependentGeoDominant]++;
 				independentGeoDominant_dependentGeoDominant[independentGeoDominant][dependentGeoDominant]++;
 
+				threadSafeQueue.add(new Container(line, geoDominant, independentGeoDominant, dependentGeoDominant));
+
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -57,6 +66,9 @@ public class Application {
 			return 1;
 		}
 		timerTask.run();
+		this.sqlClerk.setFlag(false);
+		sqlClerk.join();
+		System.out.println("END - " + new Date());
 		return 0;
 	}
 	class MyTimerTask extends TimerTask {
