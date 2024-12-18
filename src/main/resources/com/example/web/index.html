@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title></title>
+  <link rel="stylesheet" href="resources/css/index.css">
+  <script defer src="resources/js/refactor.js"></script>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+</head>
+<body>
+  <div id="wrapper">
+
+    <div id="left_wrapper">
+      <input type="text" maxlength="512" id="input" class="input" placeholder="Graph6"/>
+      <label class="switch" placeholder="dwasdw">
+        <input type="checkbox" class="switch__input" id="input_checkbox" >
+        <span class="switch__slider"></span>
+        <p style="width: 120px;">Вершины/Ребра<br><br>ЛКМ-перенести<br>ПКМ-добавить<br>СКМ-удалить<br>Enter-отрисовать</p>
+      </label>
+    </div>
+
+    
+    <canvas id="drawing_area" width=700 height=700></canvas>
+    
+    <div id="right_wrapper">
+      <div class="form_radio_group">
+        <div class="form_radio_group-item">
+          <input id="radio-1" type="radio" name="radio" value="1">
+          <label for="radio-1">Геодоминирование</label>
+        </div>
+        <div class="form_radio_group-item">
+          <input id="radio-2" type="radio" name="radio" value="2">
+          <label for="radio-2">Связное геодоминирование</label>
+        </div>
+        <div class="form_radio_group-item">
+          <input id="radio-3" type="radio" name="radio" value="3">
+          <label for="radio-3">Независимое геодоминирование</label>
+        </div>
+        <div class="form_radio_group-item">
+          <input id="radio-4" type="radio" name="radio" value="4">
+          <label for="radio-4">Доминирование</label>
+        </div>
+        <div class="form_radio_group-item">
+          <input id="radio-5" type="radio" name="radio" value="5">
+          <label for="radio-5">Связное доминирование</label>
+        </div>
+        <div class="form_radio_group-item">
+          <input id="radio-6" type="radio" name="radio" value="6">
+          <label for="radio-6">Независимое доминирование</label>
+        </div>
+      </div>
+      <p id="p_for_sets" style="width: 340px;"></p>
+    </div>
+
+
+
+  </div>
+</body>
+</html>
