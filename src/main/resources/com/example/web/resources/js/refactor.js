@@ -1,3 +1,4 @@
+
 //Init area
 const canvas = document.getElementById('drawing_area');
 const ctx = canvas.getContext('2d');
@@ -6,6 +7,11 @@ const inputCheckbox = document.getElementById('input_checkbox');
 const radio1 = document.getElementById('radio-1');
 const radio2 = document.getElementById('radio-2');
 const radio3 = document.getElementById('radio-3');
+const radio4 = document.getElementById('radio-4');
+const radio5 = document.getElementById('radio-5');
+const radio6 = document.getElementById('radio-6');
+const apiUrl = "http://213.183.44.69:80/api?g6="
+
 const pForSets = document.getElementById('p_for_sets');
 //Size of canvas
 const canvasHeight = canvas.height;
@@ -172,6 +178,7 @@ function getIndexVertexByMouse(ev) {
     for (let vertex of vertexes) {
         if (vertex !== null && isVertexContainsMouse(mouse_pos, vertex)) {
             currentVertexIndex = index;
+            console.log('vertex id = ' + currentVertexIndex);
             break;
         }
         index++;
@@ -264,7 +271,6 @@ function rewriteGraph6Field() {
     input.innerHTML = val;
     input.value = val;
 }
-
 
 //Draw section
 //Draw circle on canvas
@@ -359,18 +365,17 @@ function drawGraph() {
 }
 
 
-
 //bind functions to actions
 input.onkeyup = async function(ev) {
+    clearVertexes();
+    if (input.value === "") {
         clearVertexes();
-        if (input.value === "") {
-            clearVertexes();
-        } else {
-            convertStringToMatrix(input.value);
-            addVertexesToArray();
-        }
-        drawGraph();
-        //await initGeoSets("http://213.183.44.69:8000/api?g6=" + convertMatrixToString(graph));
+    } else {
+        convertStringToMatrix(input.value);
+        addVertexesToArray();
+    }
+    drawGraph();
+    //await initGeoSets("http://213.183.44.69:8000/api?g6=" + convertMatrixToString(graph));
 }
 
 
@@ -416,19 +421,24 @@ async function httpGet(url) {
 }
 
 async function initGeoSets(url) {
+    console.log(url);
     const result = await httpGet(url);
     const helper = result.split(';').map(str => str.split(' ').map(Number));
+    console.log(result.split(';'));
     geoArr = helper.map(arr => arr.sort((a, b) => a - b));
-    if (result.split(';')[0] == '') geoArr[0] = [];
-    if (result.split(';')[1] == '') geoArr[1] = [];
-    if (result.split(';')[2] == '') geoArr[2] = [];
+    for (let i = 0 ; i < 6; i++) {
+        if (result.split(';')[i] == '') geoArr[i] = [];
+    }
     writeGeoSetsValues();
 }
 
 function writeGeoSetsValues() {
     pForSets.innerHTML = "Число геодоминирования: " + geoArr[0].length + "<br>" +
                          "Число связного геодоминирования: " + geoArr[1].length + "<br>" +
-                         "Число независимого геодоминирования: " + geoArr[2].length + "<br>";
+                         "Число независимого геодоминирования: " + geoArr[2].length + "<br>" +
+                         "Число доминирования: " + geoArr[3].length + "<br>" +
+                         "Число связного доминирования: " + geoArr[4].length + "<br>" +
+                         "Число независимого доминирования: " + geoArr[5].length + "<br>";
 }
 
 function clearVertexStyles() {
@@ -450,18 +460,34 @@ function drawSets(inputVal) {
 }
 
 radio1.onchange = async function(ev) {
-    await initGeoSets("http://213.183.44.69:8000/api?g6=" + convertMatrixToString(graph));
+    await initGeoSets(apiUrl + convertMatrixToString(graph));
     drawSets(0);
 }
 
 radio2.onchange = async function(ev) {
-    await initGeoSets("http://213.183.44.69:8000/api?g6=" + convertMatrixToString(graph));
+    await initGeoSets(apiUrl + convertMatrixToString(graph));
     drawSets(1);
 }
 
 radio3.onchange = async function(ev) {
-    await initGeoSets("http://213.183.44.69:8000/api?g6=" + convertMatrixToString(graph));
+    await initGeoSets(apiUrl + convertMatrixToString(graph));
     drawSets(2);
 }
+
+radio4.onchange = async function(ev) {
+    await initGeoSets(apiUrl + convertMatrixToString(graph));
+    drawSets(3);
+}
+
+radio5.onchange = async function(ev) {
+    await initGeoSets(apiUrl + convertMatrixToString(graph));
+    drawSets(4);
+}
+
+radio6.onchange = async function(ev) {
+    await initGeoSets(apiUrl + convertMatrixToString(graph));
+    drawSets(5);
+}
+
 
 //пропадают цвета после отпуска вершины
